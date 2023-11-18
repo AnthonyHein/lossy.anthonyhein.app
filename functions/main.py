@@ -1,6 +1,6 @@
 from encoder import Encoder
 
-from firebase_functions import https_fn
+from firebase_functions import https_fn, options
 
 from firebase_admin import initialize_app, firestore
 import google.cloud.firestore
@@ -47,7 +47,12 @@ def get_probability(req: https_fn.Request, param="probability") -> typing.Tuple[
 
     return check_probability(probability)
 
-@https_fn.on_request()
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"https://lossy\.anthonyhein\.com"],
+        cors_methods=["get"],
+    )
+)
 def encode(req: https_fn.Request) -> https_fn.Response:
     plaintexts = []
 
@@ -90,7 +95,12 @@ def encode(req: https_fn.Request) -> https_fn.Response:
         "id": doc_ref.id,
         "ciphertexts": [str(ciphertext) for ciphertext in ciphertexts]}))
 
-@https_fn.on_request()
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"https://lossy\.anthonyhein\.com$"],
+        cors_methods=["get"],
+    )
+)
 def guess(req: https_fn.Request) -> https_fn.Response:
     id = req.args.get("id")
     if id is None:
@@ -130,7 +140,12 @@ def guess(req: https_fn.Request) -> https_fn.Response:
 
     return https_fn.Response(json.dumps({"key": "DESTROYED", "position": None}))
 
-@https_fn.on_request()
+@https_fn.on_request(
+    cors=options.CorsOptions(
+        cors_origins=[r"https://lossy\.anthonyhein\.com$"],
+        cors_methods=["get"],
+    )
+)
 def decode(req: https_fn.Request) -> https_fn.Response:
     key = req.args.get("key")
     if key is None:
