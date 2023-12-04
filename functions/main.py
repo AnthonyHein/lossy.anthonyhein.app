@@ -95,7 +95,7 @@ def decode(req: https_fn.Request) -> https_fn.Response:
     firestore_client: google.cloud.firestore.Client = firestore.client()
     doc = firestore_client.collection("keys").document(id).get()
     if not doc.exists:
-        return https_fn.Response("Unrecognized ID.", status=400)
+        return https_fn.Response("Unrecognized ID. Have you already tried decoding this message? Only one decoding attempt is allowed per message.", status=400)
 
     keys = doc.to_dict().get('keys')
     if keys is None:
